@@ -1,0 +1,16 @@
+identif
+10
+2.0
+'w'
+"abc"
+
+.   _
+char
+if
+\\ one line comment 1
+\\\ multi line comment 2
+3
+///
+<=
++
+'
