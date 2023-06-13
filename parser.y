@@ -38,7 +38,7 @@
 %token TOKEN_ERROR
 
 // operator precedence
-%left '.' '&'
+%left '~' '&' '|'
 %left '<' '>' OPERATOR_EQ OPERATOR_DIF OPERATOR_GE OPERATOR_LE
 %left '+' '-'
 %left '*' '/'
@@ -81,11 +81,11 @@ vector_tail: literal vector_tail
            ;
 
 func_declaration: kw_type TK_IDENTIFIER '(' arg_list ')' command_block
+                | kw_type TK_IDENTIFIER '(' ')' command_block
                 ;
 
 arg_list: arg
         | arg ',' arg_list
-        |
         ;
 
 arg: kw_type TK_IDENTIFIER
@@ -134,14 +134,14 @@ expression: literal
           | expression '|' expression
           | expression '~' expression
           | '(' expression ')'
+          | TK_IDENTIFIER '(' ')'
           | TK_IDENTIFIER '(' func_call_arg_list ')'
           | KW_INPUT '(' kw_type ')'
           ;
 
 func_call_arg_list: expression
-                    | expression ',' func_call_arg_list
-                    |
-                    ;
+                  | expression ',' func_call_arg_list
+                  ;
 
 %%
 
