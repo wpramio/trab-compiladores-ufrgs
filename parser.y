@@ -54,11 +54,11 @@ global_declaration_list: global_declaration global_declaration_list
                        ;
 
 
-global_declaration: var_declaration
+global_declaration: var_declaration ';'
                   | func_declaration
                   ;
 
-var_declaration: kw_type TK_IDENTIFIER '=' literal ';'
+var_declaration: kw_type TK_IDENTIFIER '=' literal
                | vector_declaration
                ;
 
@@ -73,7 +73,7 @@ literal: LIT_INT
        | LIT_CHAR
        ;
 
-vector_declaration: kw_type TK_IDENTIFIER '[' LIT_INT ']' vector_tail ';'
+vector_declaration: kw_type TK_IDENTIFIER '[' LIT_INT ']' vector_tail
                   ;
 
 vector_tail: literal vector_tail
