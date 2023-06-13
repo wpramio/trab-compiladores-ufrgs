@@ -1,4 +1,6 @@
 %{
+  // author: Willian R. Pramio (00262875)
+
   int yyerror (char const *s);
 %}
 
@@ -96,26 +98,51 @@ command_list: command command_list
             |
             ;
 
-command: TK_IDENTIFIER '=' expression
+command: TK_IDENTIFIER '=' expression ';'
+       | TK_IDENTIFIER '[' expression ']' '=' expression ';'
        | KW_IF expression command
        | KW_IF expression command KW_ELSE command
-       /* |  isso gera conflitos, olhar depois*/
+       | KW_IF expression KW_LOOP command
+       | KW_OUTPUT output_arg_list
+       | KW_RETURN expression
+       | command_block
+       | ';'
        ;
 
-expression: LIT_INT
-        | TK_IDENTIFIER
-        | expression '+' expression
-        | expression '-' expression
-        | expression '*' expression
-        | expression '/' expression
-        | expression '>' expression
-        | expression '<' expression
-        | expression '.' expression
-        | expression '&' expression
-        | expression OPERATOR_EQ expression
-        | '(' expression ')'
-        /* e varios outros */
-        ;
+output_arg_list: output_arg
+               | output_arg ',' output_arg_list
+               ;
+
+output_arg: LIT_STRING
+          | expression
+          ;
+
+expression: literal
+          | TK_IDENTIFIER
+          | TK_IDENTIFIER '[' expression ']'
+          | expression '+' expression
+          | expression '-' expression
+          | expression '*' expression
+          | expression '/' expression
+          | expression '>' expression
+          | expression '<' expression
+          | expression OPERATOR_LE expression
+          | expression OPERATOR_GE expression
+          | expression OPERATOR_EQ expression
+          | expression OPERATOR_DIF expression
+          | expression '&' expression
+          | expression '|' expression
+          | expression '~' expression
+          | '(' expression ')'
+          | TK_IDENTIFIER '(' func_call_arg_list ')'
+          | KW_INPUT '(' kw_type ')'
+          ;
+
+func_call_arg_list: expression
+                    | expression ',' func_call_arg_list
+                    |
+                    ;
+
 %%
 
 int yyerror(char const *s)
