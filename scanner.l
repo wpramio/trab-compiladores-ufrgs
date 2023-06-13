@@ -1,7 +1,7 @@
 %{
   // author: Willian R. Pramio (00262875)
 
-  #include "tokens.h"
+  #include "y.tab.h"
   #include "hash.c"
 
   char buf[100];
@@ -81,4 +81,5 @@ int isRunning(void)
   return running;
 }
 
+#include "y.tab.c"
 #include "main.c"
