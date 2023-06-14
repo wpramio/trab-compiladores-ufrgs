@@ -26,10 +26,11 @@ int main(int argc, char **argv)
 
   initMe();
 
-  yyparse();
+  int ret = yyparse();
 
   hashPrint();
-  fprintf(stderr, "\n Success! File has %d lines.\n", getLineNumber());
+  if (ret == 0)
+    fprintf(stderr, "\n Success! File has %d lines.\n", getLineNumber());
 
-  return 0;
+  return ret;
 }
