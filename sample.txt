@@ -10,8 +10,8 @@ real f=2.5;
 bool b = 0;
 
 \\\
-Este eh um comentario 
-de multiplas 
+Este eh um comentario
+de multiplas
 linhas
 ///
 

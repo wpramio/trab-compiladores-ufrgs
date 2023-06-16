@@ -100,11 +100,11 @@ command_list: command command_list
 
 command: TK_IDENTIFIER '=' expression ';'
        | TK_IDENTIFIER '[' expression ']' '=' expression ';'
-       | KW_IF expression command
-       | KW_IF expression command KW_ELSE command
-       | KW_IF expression KW_LOOP command
-       | KW_OUTPUT output_arg_list
-       | KW_RETURN expression
+       | KW_IF '(' expression ')' command
+       | KW_IF '(' expression ')' command KW_ELSE command
+       | KW_IF '(' expression ')' KW_LOOP command
+       | KW_OUTPUT output_arg_list ';'
+       | KW_RETURN expression ';'
        | command_block
        | ';'
        ;
