@@ -1,8 +1,8 @@
 %{
   // author: Willian R. Pramio (00262875)
 
+  #include "hash.h"
   #include "y.tab.h"
-  #include "hash.c"
 
   char buf[100];
   char *s;
@@ -80,6 +80,3 @@ int isRunning(void)
 {
   return running;
 }
-
-#include "y.tab.c"
-#include "main.c"

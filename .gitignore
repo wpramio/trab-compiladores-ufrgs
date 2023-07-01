@@ -56,7 +56,6 @@ dkms.conf
 
 # project-specific files
 lex.yy.c
-etapa1
-etapa2
+etapa*
 y.tab.c
 y.tab.h

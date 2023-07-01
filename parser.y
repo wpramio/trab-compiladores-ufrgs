@@ -1,7 +1,11 @@
 %{
   // author: Willian R. Pramio (00262875)
 
+  #include "hash.h"
+
   int yyerror (char const *s);
+  int getLineNumber();
+  int yylex();
 %}
 
 // types

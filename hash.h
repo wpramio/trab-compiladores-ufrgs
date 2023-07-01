@@ -4,6 +4,8 @@
 #define HASH_HEADER
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define SYMBOL_LIT_INT 1
 #define SYMBOL_LIT_REAL 2
