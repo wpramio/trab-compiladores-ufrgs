@@ -1,11 +1,12 @@
 %{
   // author: Willian R. Pramio (00262875)
 
+  #include "ast.h"
   #include "hash.h"
   #include "y.tab.h"
 
   char buf[100];
-  char *s;
+  int i = 0;
   int LineNumber = 1;
   int running = 1;
 %}
@@ -37,17 +38,16 @@
 "=="                      { return OPERATOR_EQ; }
 "!="                      { return OPERATOR_DIF; }
 
-[0-9][0-9]*               { hashInsert(yytext, SYMBOL_LIT_INT); return LIT_INT; }
-[0-9]"."[0-9]+            { hashInsert(yytext, SYMBOL_LIT_REAL); return LIT_REAL; }
-'.'                       { s = buf; *s = 0; *s++ = yytext[1]; hashInsert(buf, SYMBOL_LIT_CHAR); return LIT_CHAR; }
+[0-9][0-9]*               { yylval.symbol = hashInsert(yytext, SYMBOL_LIT_INT); return LIT_INT; }
+[0-9]"."[0-9]+            { yylval.symbol = hashInsert(yytext, SYMBOL_LIT_REAL); return LIT_REAL; }
+'.'                       { i = 0; buf[0] = yytext[1]; buf[1] = '\0'; yylval.symbol = hashInsert(buf, SYMBOL_LIT_CHAR); return LIT_CHAR; }
 
-\"                        { BEGIN(STRING); s = buf; }
-<STRING>\\n               { *s++ = '\n'; }
-<STRING>\\t               { *s++ = '\t'; }
-<STRING>\\\"              { *s++ = '\"'; }
-<STRING>\"                { hashInsert(buf, SYMBOL_LIT_STRING); *s = 0; BEGIN(INITIAL); return LIT_STRING; }
+\"                        { BEGIN(STRING); i = 0; }
+<STRING>\\t               { buf[i++] = '\t'; }
+<STRING>\\\"              { buf[i++] = '\"'; }
+<STRING>\"                { buf[i] = '\0'; yylval.symbol = hashInsert(buf, SYMBOL_LIT_STRING); BEGIN(INITIAL); return LIT_STRING; }
 <STRING>\n                {}
-<STRING>.                 { *s++ = *yytext; }
+<STRING>.                 { buf[i++] = *yytext; }
 
 "\\\\\\"                  { BEGIN(COMMENT); }
 <COMMENT>"///"            { BEGIN(INITIAL); }
@@ -55,7 +55,7 @@
 <COMMENT>.                {}
 "\\\\"[^\\].*             {}
 
-[a-zA-Z\._]+              { hashInsert(yytext, SYMBOL_IDENTIFIER); return TK_IDENTIFIER; }
+[a-zA-Z\._]+              { yylval.symbol = hashInsert(yytext, SYMBOL_IDENTIFIER); return TK_IDENTIFIER; }
 
 .                         { return TOKEN_ERROR; }
 
