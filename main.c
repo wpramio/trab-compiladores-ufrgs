@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "hash.h"
+#include "ast.h"
 
 //lex.yy.h
 int yyparse();
@@ -13,9 +14,9 @@ int getLineNumber(void);
 
 int main(int argc, char **argv)
 {
-  if (argc < 2)
+  if (argc < 3)
   {
-    fprintf(stderr, "Call: ./etapa2 file_name\n");
+    fprintf(stderr, "Call: ./etapa3 filename_in filename_out\n");
     exit(1);
   }
 
@@ -25,9 +26,18 @@ int main(int argc, char **argv)
     exit(1);
   }
 
+  FILE *file_out;
+  if ( (file_out = fopen(argv[2], "a")) == 0 )
+  {
+    fprintf(stderr, "Cannot create file %s... \n", argv[2]);
+    exit(1);
+  }
+
   initMe();
 
   int ret = yyparse();
+
+  astDecompile(argv[2]);
 
   hashPrint();
   if (ret == 0)
