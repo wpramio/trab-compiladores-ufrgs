@@ -87,10 +87,10 @@ void *astPrint(AST *node, int level)
 
 void *astDecompile(char* filename_out)
 {
-  FILE* file_out = fopen(filename_out, "w");
-
   if (global_ast == 0 || global_ast->son[0] == 0)
     fprintf(stderr, "Null global_ast\n");
+
+  FILE* file_out = fopen(filename_out, "w");
   astDecompileNode(global_ast, file_out);
   fclose(file_out);
 }
@@ -338,6 +338,9 @@ void astDecompileNode(AST *node, FILE* file_out)
           fprintf(file_out, ", ");
           astDecompileNode(node->son[1], file_out);
         }
+        break;
+      case AST_EMPTY_CMD:
+        fprintf(file_out, ";");
         break;
       case AST_GLOBAL_DEC_LIST:
         astDecompileNode(node->son[0], file_out);
