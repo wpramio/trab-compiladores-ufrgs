@@ -187,6 +187,6 @@ func_call_arg_list: expression                          { $$ = astCreate(AST_FUN
 
 int yyerror(char const *s)
 {
-  fprintf(stderr, "Syntax error at line %d.\n", getLineNumber());
+  fprintf(stderr, "\nCompilation failed: syntax error at line %d.\n", getLineNumber());
   exit(3);
 }

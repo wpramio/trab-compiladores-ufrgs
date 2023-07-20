@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "hash.h"
 #include "ast.h"
+#include "semantic.h"
 
 //lex.yy.h
 int yyparse();
@@ -23,14 +24,14 @@ int main(int argc, char **argv)
   if ( (yyin = fopen(argv[1], "r")) == 0 )
   {
     fprintf(stderr, "Cannot open file %s... \n", argv[1]);
-    exit(1);
+    exit(2);
   }
 
   FILE *file_out;
   if ( (file_out = fopen(argv[2], "a")) == 0 )
   {
     fprintf(stderr, "Cannot create file %s... \n", argv[2]);
-    exit(1);
+    exit(2);
   }
 
   initMe();
@@ -40,8 +41,15 @@ int main(int argc, char **argv)
   astDecompile(argv[2]);
 
   hashPrint();
-  if (ret == 0)
-    fprintf(stderr, "\n Success! File has %d lines.\n", getLineNumber());
+  fprintf(stderr, "\nFile has %d lines.\n", getLineNumber());
 
-  return ret;
+  if (SemanticErrors > 0)
+  {
+    fprintf(stderr, "\nCompilation failed: source file has %d semantic errors.\n", SemanticErrors);
+    exit(4);
+  }
+  else if (ret == 0)
+    fprintf(stderr, "\nSuccess! Compilation completed.\n", getLineNumber());
+
+  return 0;
 }
