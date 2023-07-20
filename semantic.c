@@ -16,6 +16,8 @@ void check_and_set_declarations(AST *node)
 
     switch (node->type)
     {
+      case AST_SYMBOL:
+        node->datatype = node->symbol->datatype; break;
       case AST_VAR_DEC:
         if (node->son[1]->symbol)
         {
@@ -34,6 +36,8 @@ void check_and_set_declarations(AST *node)
           node->son[1]->symbol->type = SYMBOL_VARIABLE;
           // set datatype on hash_node
           node->son[1]->symbol->datatype = node->son[0]->datatype;
+          // set datatype on AST_SYMBOL node
+          node->son[1]->datatype = node->son[0]->datatype;
         }
         break;
       case AST_FUNC_DEC:
@@ -48,17 +52,9 @@ void check_and_set_declarations(AST *node)
           // set type on hash_node
           node->son[1]->symbol->type = SYMBOL_FUNCTION;
           // set datatype on hash_node
-          switch (node->son[0]->type)
-          {
-            case AST_TYPE_INT:
-              node->son[1]->symbol->datatype = DATATYPE_INT; break;
-            case AST_TYPE_REAL:
-              node->son[1]->symbol->datatype = DATATYPE_REAL; break;
-            case AST_TYPE_CHAR:
-              node->son[1]->symbol->datatype = DATATYPE_CHAR; break;
-            case AST_TYPE_BOOL:
-              node->son[1]->symbol->datatype = DATATYPE_BOOL; break;
-          }
+          node->son[1]->symbol->datatype = node->son[0]->datatype;
+          // set datatype on AST_SYMBOL node
+          node->son[1]->datatype = node->son[0]->datatype;
         }
         break;
       case AST_VEC_DEC:
@@ -84,22 +80,15 @@ void check_and_set_declarations(AST *node)
           // set type on hash_node
           node->son[1]->symbol->type = SYMBOL_VECTOR;
           // set datatype on hash_node
-          switch (node->son[0]->type)
-          {
-            case AST_TYPE_INT:
-              node->son[1]->symbol->datatype = DATATYPE_INT; break;
-            case AST_TYPE_REAL:
-              node->son[1]->symbol->datatype = DATATYPE_REAL; break;
-            case AST_TYPE_CHAR:
-              node->son[1]->symbol->datatype = DATATYPE_CHAR; break;
-            case AST_TYPE_BOOL:
-              node->son[1]->symbol->datatype = DATATYPE_BOOL; break;
-          }
+          node->son[1]->symbol->datatype = node->son[0]->datatype;
+          // set datatype on AST_SYMBOL node
+          node->son[1]->datatype = node->son[0]->datatype;
         }
         break;
       case AST_ARG:
         node->son[1]->symbol->type = SYMBOL_VARIABLE;
         node->son[1]->symbol->datatype = node->son[0]->datatype;
+        node->son[1]->datatype = node->son[0]->datatype;
         break;
       case AST_TYPE_INT:
         node->datatype = DATATYPE_INT;
@@ -158,14 +147,12 @@ void check_expressions(AST* node)
 
     switch (node->type)
     {
-      case AST_SYMBOL:
-        // TODO
+      case AST_VAR_ACCESS:
         if (node->symbol->type == SYMBOL_FUNCTION)
         {
           fprintf(stderr, "Semantic Error: function '%s' called without arguments list\n", node->symbol->text);
           SemanticErrors++;
         }
-        // TODO
         if (node->symbol->type == SYMBOL_VECTOR)
         {
           fprintf(stderr, "Semantic Error: vector '%s' accessed without index\n", node->symbol->text);
@@ -334,6 +321,7 @@ void check_undeclared()
 
 int compatible_datatypes(int dt1, int dt2)
 {
+  // fprintf(stderr, "%d vs %d\n", dt1, dt2);
   if (dt1 == dt2 || (dt1 == DATATYPE_INT && dt2 == DATATYPE_CHAR) || (dt1 == DATATYPE_CHAR && dt2 == DATATYPE_INT))
     return 1;
   else
@@ -375,7 +363,8 @@ int valid_return_datatype(AST *func_dec)
   AST* cmd_list = func_dec->son[3]->son[0];
   while(cmd_list != 0)
   {
-    // cmd_list->son[0] = command; cmd_list->son[0]->son[0] = expression
+    // cmd_list->son[0] := command
+    // cmd_list->son[0]->son[0] := expression
     if (cmd_list->son[0]->type == AST_RETURN && !compatible_datatypes(func_dec->son[1]->symbol->datatype, cmd_list->son[0]->son[0]->datatype))
       return 0;
     else

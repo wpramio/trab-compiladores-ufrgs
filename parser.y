@@ -158,7 +158,7 @@ output_arg: LIT_STRING                                  { $$ = astCreate(AST_SYM
           ;
 
 expression: literal                                     { $$ = $1; }
-          | TK_IDENTIFIER                               { $$ = astCreate(AST_SYMBOL, $1, 0, 0, 0, 0); }
+          | TK_IDENTIFIER                               { $$ = astCreate(AST_VAR_ACCESS, $1, 0, 0, 0, 0); }
           | TK_IDENTIFIER '[' expression ']'            { $$ = astCreate(AST_VEC_ACCESS, 0, astCreate(AST_SYMBOL, $1, 0, 0, 0, 0), $3, 0, 0); }
           | expression '+' expression                   { $$ = astCreate(AST_ADD, 0, $1, $3, 0, 0); }
           | expression '-' expression                   { $$ = astCreate(AST_SUB, 0, $1, $3, 0, 0); }

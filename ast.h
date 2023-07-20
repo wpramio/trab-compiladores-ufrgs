@@ -52,6 +52,7 @@
 #define AST_RETURN          41
 #define AST_EMPTY_CMD       42
 #define AST_OUTPUT_ARG      43
+#define AST_VAR_ACCESS      44
 
 typedef struct ast_node
 {

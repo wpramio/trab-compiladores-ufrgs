@@ -51,6 +51,7 @@ void *astPrint(AST *node, int level)
       case AST_TYPE_INT: fprintf(stderr, "AST_TYPE_INT"); break;
       case AST_TYPE_REAL: fprintf(stderr, "AST_TYPE_REAL"); break;
       case AST_TYPE_BOOL: fprintf(stderr, "AST_TYPE_BOOL"); break;
+      case AST_VAR_ACCESS: fprintf(stderr, "AST_VAR_ACCESS"); break;
       case AST_VEC_ACCESS: fprintf(stderr, "AST_VEC_ACCESS"); break;
       case AST_VAR_DEC: fprintf(stderr, "AST_VAR_DEC"); break;
       case AST_VEC_DEC: fprintf(stderr, "AST_VEC_DEC"); break;
@@ -216,6 +217,8 @@ void astDecompileNode(AST *node, FILE* file_out)
         fprintf(file_out, "real"); break;
       case AST_TYPE_BOOL:
         fprintf(file_out, "bool"); break;
+      case AST_VAR_ACCESS:
+        fprintf(file_out, "%s", node->symbol->text); break;
       case AST_VEC_ACCESS:
         astDecompileNode(node->son[0], file_out);
         fprintf(file_out, "[");
