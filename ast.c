@@ -75,9 +75,10 @@ void *astPrint(AST *node, int level)
       default: fprintf(stderr, "AST_UNKOWN(%d)", node->type); break;
     }
     if (node->symbol != 0)
-      fprintf(stderr, ", %s\n", node->symbol->text);
+      fprintf(stderr, ", %s", node->symbol->text);
     else
-      fprintf(stderr, "\n");
+      fprintf(stderr, ",_");
+    fprintf(stderr, ", %d\n", node->datatype);
     for(int i=0; i < MAX_SONS; ++i)
     {
       astPrint(node->son[i], level + 1);
@@ -170,9 +171,8 @@ void astDecompileNode(AST *node, FILE* file_out)
         astDecompileNode(node->son[1], file_out);
         break;
       case AST_NEG:
+        fprintf(file_out, "~");
         astDecompileNode(node->son[0], file_out);
-        fprintf(file_out, " ~ ");
-        astDecompileNode(node->son[1], file_out);
         break;
       case AST_NESTED_EXPR:
         fprintf(file_out, "(");
