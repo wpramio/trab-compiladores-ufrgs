@@ -3,6 +3,7 @@
 
   #include "hash.h"
   #include "ast.h"
+  #include "semantic.h"
 
   extern AST *global_ast;
   int yyerror (char const *s);
@@ -76,7 +77,15 @@
 
 %%
 
-program: global_declaration_list          { $$ = $1; astPrint($1, 0); global_ast = $$; }
+program: global_declaration_list          {
+                                          $$ = $1;
+                                          global_ast = $$;
+                                          check_and_set_declarations(global_ast);
+                                          check_undeclared();
+                                          check_expressions(global_ast);
+                                          check_assignments(global_ast);
+                                          astPrint(global_ast, 0);
+                                          }
        ;
 
 
@@ -163,7 +172,7 @@ expression: literal                                     { $$ = $1; }
           | expression OPERATOR_DIF expression          { $$ = astCreate(AST_DIF, 0, $1, $3, 0, 0); }
           | expression '&' expression                   { $$ = astCreate(AST_AND, 0, $1, $3, 0, 0); }
           | expression '|' expression                   { $$ = astCreate(AST_OR, 0, $1, $3, 0, 0); }
-          | expression '~' expression                   { $$ = astCreate(AST_NEG, 0, $1, $3, 0, 0); }
+          | '~' expression                              { $$ = astCreate(AST_NEG, 0, $2, 0, 0, 0); }
           | '(' expression ')'                          { $$ = astCreate(AST_NESTED_EXPR, 0, $2, 0, 0, 0); }
           | TK_IDENTIFIER '(' ')'                       { $$ = astCreate(AST_FUNC_CALL, 0, astCreate(AST_SYMBOL, $1, 0, 0, 0, 0), 0, 0, 0); }
           | TK_IDENTIFIER '(' func_call_arg_list ')'    { $$ = astCreate(AST_FUNC_CALL, 0, astCreate(AST_SYMBOL, $1, 0, 0, 0, 0), $3, 0, 0); }
