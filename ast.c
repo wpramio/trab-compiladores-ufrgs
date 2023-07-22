@@ -19,7 +19,7 @@ AST *astCreate(int type, HASH_NODE *symbol, AST* s0, AST* s1, AST* s2, AST* s3)
   return new_node;
 }
 
-void *astPrint(AST *node, int level)
+void astPrint(AST *node, int level)
 {
   // won't print if it's a null pointer
   if (node != 0)
@@ -87,7 +87,7 @@ void *astPrint(AST *node, int level)
   }
 }
 
-void *astDecompile(char* filename_out)
+void astDecompile(char* filename_out)
 {
   if (global_ast == 0 || global_ast->son[0] == 0)
     fprintf(stderr, "Null global_ast\n");

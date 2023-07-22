@@ -49,7 +49,7 @@ int main(int argc, char **argv)
     exit(4);
   }
   else if (ret == 0)
-    fprintf(stderr, "\nSuccess! Compilation completed.\n", getLineNumber());
+    fprintf(stderr, "\nSuccess! Compilation completed.\n");
 
   return 0;
 }

@@ -155,7 +155,7 @@ void check_expressions(AST* node)
         }
         if (node->symbol->type == SYMBOL_VECTOR)
         {
-          fprintf(stderr, "Semantic Error: vector '%s' accessed without index\n", node->symbol->text);
+          fprintf(stderr, "Semantic Error: vector '%s' accessed without index value\n", node->symbol->text);
           SemanticErrors++;
         }
         node->datatype = node->symbol->datatype;
@@ -166,7 +166,7 @@ void check_expressions(AST* node)
       case AST_VEC_ACCESS:
         if (node->son[0]->symbol->type != SYMBOL_VECTOR)
         {
-          fprintf(stderr, "Semantic Error: indexed symbol '%s' is not a vector\n", node->son[0]->symbol->text);
+          fprintf(stderr, "Semantic Error: symbol '%s' is not a vector\n", node->son[0]->symbol->text);
           SemanticErrors++;
         }
         if (node->son[1]->datatype != DATATYPE_INT && node->son[1]->datatype != DATATYPE_CHAR)
