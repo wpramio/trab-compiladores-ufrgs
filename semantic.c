@@ -55,6 +55,8 @@ void check_and_set_declarations(AST *node)
           node->son[1]->symbol->datatype = node->son[0]->datatype;
           // set datatype on AST_SYMBOL node
           node->son[1]->datatype = node->son[0]->datatype;
+          // set the hash_node's void pointer to keep the AST_FUNC_DEC node
+          node->son[1]->symbol->ast_dec_node = node;
         }
         break;
       case AST_VEC_DEC:
@@ -182,7 +184,7 @@ void check_expressions(AST* node)
           fprintf(stderr, "Semantic Error: symbol '%s' is not a vector\n", node->son[0]->symbol->text);
           SemanticErrors++;
         }
-        if (node->son[1]->datatype != DATATYPE_INT && node->son[1]->datatype != DATATYPE_CHAR)
+        else if (node->son[1]->datatype != DATATYPE_INT && node->son[1]->datatype != DATATYPE_CHAR)
         {
           fprintf(stderr, "Semantic Error: vector '%s' access index is not an integer nor char\n", node->son[0]->symbol->text);
           SemanticErrors++;
@@ -199,11 +201,8 @@ void check_expressions(AST* node)
           fprintf(stderr, "Semantic Error: called symbol '%s' is not a function\n", node->son[0]->symbol->text);
           SemanticErrors++;
         }
-        if (!valid_function_call_args(node))
-        {
-          fprintf(stderr, "Semantic Error: invalid arguments for function %s\n", node->son[0]->symbol->text);
+        else if (!valid_function_call_args(node))
           SemanticErrors++;
-        }
         node->datatype = node->son[0]->symbol->datatype;
         break;
       case AST_INPUT:
@@ -355,17 +354,54 @@ int valid_vector_init_values(AST *vec_dec)
   return 1;
 }
 
-// TODO
 int valid_function_call_args(AST *func_call)
 {
-  // AST *vec_tail = node->son[3];
-  // while(vec_tail != 0)
-  // {
-  //   if (!compatible_datatypes(vec_tail->son[0]->symbol->datatype, node->son[0]->datatype))
-  //     return 0;
-  //   else
-  //     vec_tail = vec_tail->son[1];
-  // }
+  // assumes that ast_dec_node was previously set on `check_and_set_declarations`
+  AST *func_dec = func_call->son[0]->symbol->ast_dec_node;
+  // func_dec->son[2] := AST_ARG_LIST or null
+  // AST_ARG_LIST:
+  // son[0] := AST_ARG
+  //  son[0]->son[1] := AST_SYMBOL
+  // son[1] := next AST_ARG_LIST or null
+  AST *arg_iter = func_dec->son[2];
+  // func_call->son[1] := AST_FUNC_CALL_ARG or null
+  // AST_FUNC_CALL_ARG:
+  // son[0] := expression
+  // son[1] := next AST_FUNC_CALL_ARG or null
+  AST *call_arg_iter = func_call->son[1];
+  int arg_count = 0;
+  int call_arg_count = 0;
+  while(arg_iter != 0 || call_arg_iter != 0)
+  {
+    if (arg_iter != 0 && call_arg_iter != 0)
+      if (!compatible_datatypes(arg_iter->son[0]->son[1]->symbol->datatype, call_arg_iter->son[0]->datatype))
+      {
+        fprintf(stderr, "Semantic Error: incompatible argument datatype provided on call for '%s' function\n", func_dec->son[1]->symbol->text);
+        return 0;
+      }
+    if (arg_iter != 0)
+    {
+
+      arg_count++;
+      arg_iter = arg_iter->son[1];
+    }
+    if (call_arg_iter != 0)
+    {
+
+      call_arg_count++;
+      call_arg_iter = call_arg_iter->son[1];
+    }
+  }
+  if (arg_count < call_arg_count)
+  {
+    fprintf(stderr, "Semantic Error: too many arguments provided on call for '%s' function (%d expected, %d provided)\n", func_dec->son[1]->symbol->text, arg_count, call_arg_count);
+    return 0;
+  }
+  if (arg_count > call_arg_count)
+  {
+    fprintf(stderr, "Semantic Error: too few arguments provided on call for '%s' function (%d expected, %d provided)\n", func_dec->son[1]->symbol->text, arg_count, call_arg_count);
+    return 0;
+  }
 
   return 1;
 }
