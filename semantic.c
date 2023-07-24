@@ -116,22 +116,35 @@ void check_assignments(AST* node)
     switch (node->type)
     {
       case AST_VAR_ASSIGN:
-        if (!compatible_datatypes(node->son[0]->symbol->datatype, node->son[1]->datatype))
+        if (node->son[0]->symbol->type != SYMBOL_VARIABLE)
+        {
+          fprintf(stderr, "Semantic Error: symbol '%s' being assigned is not a variable\n", node->son[0]->symbol->text);
+          SemanticErrors++;
+        }
+        else if (!compatible_datatypes(node->son[0]->symbol->datatype, node->son[1]->datatype))
         {
           fprintf(stderr, "Semantic Error: variable '%s' assigned with incompatible datatype\n", node->son[0]->symbol->text);
           SemanticErrors++;
         }
         break;
       case AST_VEC_ASSIGN:
-        if (!compatible_datatypes(node->son[0]->symbol->datatype, node->son[2]->datatype))
+        if (node->son[0]->symbol->type != SYMBOL_VECTOR)
         {
-          fprintf(stderr, "Semantic Error: vector '%s' assigned with incompatible datatype\n", node->son[0]->symbol->text);
+          fprintf(stderr, "Semantic Error: symbol '%s' being assigned is not a vector\n", node->son[0]->symbol->text);
           SemanticErrors++;
         }
-        if (node->son[1]->datatype != DATATYPE_INT && node->son[1]->datatype != DATATYPE_CHAR)
+        else
         {
-          fprintf(stderr, "Semantic Error: vector '%s' assignment index has invalid datatype\n", node->son[0]->symbol->text);
-          SemanticErrors++;
+          if (!compatible_datatypes(node->son[0]->symbol->datatype, node->son[2]->datatype))
+          {
+            fprintf(stderr, "Semantic Error: vector '%s' assigned with incompatible datatype\n", node->son[0]->symbol->text);
+            SemanticErrors++;
+          }
+          if (node->son[1]->datatype != DATATYPE_INT && node->son[1]->datatype != DATATYPE_CHAR)
+          {
+            fprintf(stderr, "Semantic Error: vector '%s' assignment index has invalid datatype\n", node->son[0]->symbol->text);
+            SemanticErrors++;
+          }
         }
         break;
     }
