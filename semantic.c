@@ -23,12 +23,12 @@ void check_and_set_declarations(AST *node)
         {
           if (node->son[1]->symbol->type != SYMBOL_IDENTIFIER)
           {
-            fprintf(stderr, "Semantic Error: variable '%s' already declared\n", node->son[1]->symbol->text);
+            fprintf(stderr, "Semantic Error (line %d): variable '%s' already declared\n", node->linenum, node->son[1]->symbol->text);
             SemanticErrors++;
           }
           if (!compatible_datatypes(node->son[0]->datatype, node->son[2]->symbol->datatype))
           {
-            fprintf(stderr, "Semantic Error: variable '%s' initialized with incompatible value\n", node->son[1]->symbol->text);
+            fprintf(stderr, "Semantic Error (line %d): variable '%s' initialized with incompatible value\n", node->linenum, node->son[1]->symbol->text);
             SemanticErrors++;
           }
 
@@ -41,11 +41,12 @@ void check_and_set_declarations(AST *node)
         }
         break;
       case AST_FUNC_DEC:
+        node->linenum = node->son[0]->linenum;
         if (node->son[1]->symbol)
         {
           if (node->son[1]->symbol->type != SYMBOL_IDENTIFIER)
           {
-            fprintf(stderr, "Semantic Error: function '%s' already declared\n", node->son[1]->symbol->text);
+            fprintf(stderr, "Semantic Error (line %d): function '%s' already declared\n", node->linenum, node->son[1]->symbol->text);
             SemanticErrors++;
           }
 
@@ -64,18 +65,18 @@ void check_and_set_declarations(AST *node)
         {
           if (node->son[1]->symbol->type != SYMBOL_IDENTIFIER)
           {
-            fprintf(stderr, "Semantic Error: vector '%s' already declared\n", node->son[1]->symbol->text);
+            fprintf(stderr, "Semantic Error (line %d): vector '%s' already declared\n", node->linenum, node->son[1]->symbol->text);
             SemanticErrors++;
           }
           // the parser already ensures the vector size is an integer, but I check again to be sure
           if (node->son[2]->symbol->datatype != DATATYPE_INT)
           {
-            fprintf(stderr, "Semantic Error: size of vector '%s' has non-integer datatype\n", node->son[1]->symbol->text);
+            fprintf(stderr, "Semantic Error (line %d): size of vector '%s' has non-integer datatype\n", node->linenum, node->son[1]->symbol->text);
             SemanticErrors++;
           }
           if (!valid_vector_init_values(node))
           {
-            fprintf(stderr, "Semantic Error: vector '%s' initialized with invalid datatype\n", node->son[1]->symbol->text);
+            fprintf(stderr, "Semantic Error (line %d): vector '%s' initialized with invalid datatype\n", node->linenum, node->son[1]->symbol->text);
             SemanticErrors++;
           }
 
@@ -120,31 +121,31 @@ void check_assignments(AST* node)
       case AST_VAR_ASSIGN:
         if (node->son[0]->symbol->type != SYMBOL_VARIABLE)
         {
-          fprintf(stderr, "Semantic Error: symbol '%s' being assigned is not a variable\n", node->son[0]->symbol->text);
+          fprintf(stderr, "Semantic Error (line %d): symbol '%s' being assigned is not a variable\n", node->linenum, node->son[0]->symbol->text);
           SemanticErrors++;
         }
         else if (!compatible_datatypes(node->son[0]->symbol->datatype, node->son[1]->datatype))
         {
-          fprintf(stderr, "Semantic Error: variable '%s' assigned with incompatible datatype\n", node->son[0]->symbol->text);
+          fprintf(stderr, "Semantic Error (line %d): variable '%s' assigned with incompatible datatype\n", node->linenum, node->son[0]->symbol->text);
           SemanticErrors++;
         }
         break;
       case AST_VEC_ASSIGN:
         if (node->son[0]->symbol->type != SYMBOL_VECTOR)
         {
-          fprintf(stderr, "Semantic Error: symbol '%s' being assigned is not a vector\n", node->son[0]->symbol->text);
+          fprintf(stderr, "Semantic Error (line %d): symbol '%s' being assigned is not a vector\n", node->linenum, node->son[0]->symbol->text);
           SemanticErrors++;
         }
         else
         {
           if (!compatible_datatypes(node->son[0]->symbol->datatype, node->son[2]->datatype))
           {
-            fprintf(stderr, "Semantic Error: vector '%s' assigned with incompatible datatype\n", node->son[0]->symbol->text);
+            fprintf(stderr, "Semantic Error (line %d): vector '%s' assigned with incompatible datatype\n", node->linenum, node->son[0]->symbol->text);
             SemanticErrors++;
           }
           if (node->son[1]->datatype != DATATYPE_INT && node->son[1]->datatype != DATATYPE_CHAR)
           {
-            fprintf(stderr, "Semantic Error: vector '%s' assignment index has invalid datatype\n", node->son[0]->symbol->text);
+            fprintf(stderr, "Semantic Error (line %d): vector '%s' assignment index has invalid datatype\n", node->linenum, node->son[0]->symbol->text);
             SemanticErrors++;
           }
         }
@@ -165,12 +166,12 @@ void check_expressions(AST* node)
       case AST_VAR_ACCESS:
         if (node->symbol->type == SYMBOL_FUNCTION)
         {
-          fprintf(stderr, "Semantic Error: function '%s' called without arguments list\n", node->symbol->text);
+          fprintf(stderr, "Semantic Error (line %d): function '%s' called without arguments list\n", node->linenum, node->symbol->text);
           SemanticErrors++;
         }
         if (node->symbol->type == SYMBOL_VECTOR)
         {
-          fprintf(stderr, "Semantic Error: vector '%s' accessed without index value\n", node->symbol->text);
+          fprintf(stderr, "Semantic Error (line %d): vector '%s' accessed without index value\n", node->linenum, node->symbol->text);
           SemanticErrors++;
         }
         node->datatype = node->symbol->datatype;
@@ -181,12 +182,12 @@ void check_expressions(AST* node)
       case AST_VEC_ACCESS:
         if (node->son[0]->symbol->type != SYMBOL_VECTOR)
         {
-          fprintf(stderr, "Semantic Error: symbol '%s' is not a vector\n", node->son[0]->symbol->text);
+          fprintf(stderr, "Semantic Error (line %d): symbol '%s' is not a vector\n", node->linenum, node->son[0]->symbol->text);
           SemanticErrors++;
         }
         else if (node->son[1]->datatype != DATATYPE_INT && node->son[1]->datatype != DATATYPE_CHAR)
         {
-          fprintf(stderr, "Semantic Error: vector '%s' access index is not an integer nor char\n", node->son[0]->symbol->text);
+          fprintf(stderr, "Semantic Error (line %d): vector '%s' access index is not an integer nor char\n", node->linenum, node->son[0]->symbol->text);
           SemanticErrors++;
         }
         // all good, set the ast_node datatype
@@ -198,7 +199,7 @@ void check_expressions(AST* node)
       case AST_FUNC_CALL:
         if (node->son[0]->symbol->type != SYMBOL_FUNCTION)
         {
-          fprintf(stderr, "Semantic Error: called symbol '%s' is not a function\n", node->son[0]->symbol->text);
+          fprintf(stderr, "Semantic Error (line %d): called symbol '%s' is not a function\n", node->linenum, node->son[0]->symbol->text);
           SemanticErrors++;
         }
         else if (!valid_function_call_args(node))
@@ -211,7 +212,7 @@ void check_expressions(AST* node)
       case AST_ADD:
         if (!compatible_datatypes(node->son[0]->datatype, node->son[1]->datatype))
         {
-          fprintf(stderr, "Semantic Error: incompatible operands for ADD\n");
+          fprintf(stderr, "Semantic Error (line %d): incompatible operands for ADD\n", node->linenum);
           SemanticErrors++;
         }
         // all good, set the expression datatype
@@ -220,7 +221,7 @@ void check_expressions(AST* node)
       case AST_SUB:
         if (!compatible_datatypes(node->son[0]->datatype, node->son[1]->datatype))
         {
-          fprintf(stderr, "Semantic Error: incompatible operands for SUB\n");
+          fprintf(stderr, "Semantic Error (line %d): incompatible operands for SUB\n", node->linenum);
           SemanticErrors++;
         }
         node->datatype = node->son[0]->datatype;
@@ -228,7 +229,7 @@ void check_expressions(AST* node)
       case AST_MULT:
         if (!compatible_datatypes(node->son[0]->datatype, node->son[1]->datatype))
         {
-          fprintf(stderr, "Semantic Error: incompatible operands for MULT\n");
+          fprintf(stderr, "Semantic Error (line %d): incompatible operands for MULT\n", node->linenum);
           SemanticErrors++;
         }
         node->datatype = node->son[0]->datatype;
@@ -236,7 +237,7 @@ void check_expressions(AST* node)
       case AST_DIV:
         if (!compatible_datatypes(node->son[0]->datatype, node->son[1]->datatype))
         {
-          fprintf(stderr, "Semantic Error: incompatible operands for DIV\n");
+          fprintf(stderr, "Semantic Error (line %d): incompatible operands for DIV\n", node->linenum);
           SemanticErrors++;
         }
         node->datatype = node->son[0]->datatype;
@@ -244,7 +245,7 @@ void check_expressions(AST* node)
       case AST_BIGG:
         if (!compatible_datatypes(node->son[0]->datatype, node->son[1]->datatype))
         {
-          fprintf(stderr, "Semantic Error: incompatible operands for BIGG\n");
+          fprintf(stderr, "Semantic Error (line %d): incompatible operands for BIGG\n", node->linenum);
           SemanticErrors++;
         }
         node->datatype = DATATYPE_BOOL;
@@ -252,7 +253,7 @@ void check_expressions(AST* node)
       case AST_LESS:
         if (!compatible_datatypes(node->son[0]->datatype, node->son[1]->datatype))
         {
-          fprintf(stderr, "Semantic Error: incompatible operands for LESS\n");
+          fprintf(stderr, "Semantic Error (line %d): incompatible operands for LESS\n", node->linenum);
           SemanticErrors++;
         }
         node->datatype = DATATYPE_BOOL;
@@ -260,7 +261,7 @@ void check_expressions(AST* node)
       case AST_LE:
         if (!compatible_datatypes(node->son[0]->datatype, node->son[1]->datatype))
         {
-          fprintf(stderr, "Semantic Error: incompatible operands for LE\n");
+          fprintf(stderr, "Semantic Error (line %d): incompatible operands for LE\n", node->linenum);
           SemanticErrors++;
         }
         node->datatype = DATATYPE_BOOL;
@@ -268,7 +269,7 @@ void check_expressions(AST* node)
       case AST_GE:
         if (!compatible_datatypes(node->son[0]->datatype, node->son[1]->datatype))
         {
-          fprintf(stderr, "Semantic Error: incompatible operands for GE\n");
+          fprintf(stderr, "Semantic Error (line %d): incompatible operands for GE\n", node->linenum);
           SemanticErrors++;
         }
         node->datatype = DATATYPE_BOOL;
@@ -276,7 +277,7 @@ void check_expressions(AST* node)
       case AST_EQ:
         if (!compatible_datatypes(node->son[0]->datatype, node->son[1]->datatype))
         {
-          fprintf(stderr, "Semantic Error: incompatible operands for EQ\n");
+          fprintf(stderr, "Semantic Error (line %d): incompatible operands for EQ\n", node->linenum);
           SemanticErrors++;
         }
         node->datatype = DATATYPE_BOOL;
@@ -284,7 +285,7 @@ void check_expressions(AST* node)
       case AST_DIF:
         if (!compatible_datatypes(node->son[0]->datatype, node->son[1]->datatype))
         {
-          fprintf(stderr, "Semantic Error: incompatible operands for DIF\n");
+          fprintf(stderr, "Semantic Error (line %d): incompatible operands for DIF\n", node->linenum);
           SemanticErrors++;
         }
         node->datatype = DATATYPE_BOOL;
@@ -292,7 +293,7 @@ void check_expressions(AST* node)
       case AST_AND:
         if (!compatible_datatypes(node->son[0]->datatype, node->son[1]->datatype))
         {
-          fprintf(stderr, "Semantic Error: incompatible operands for AND\n");
+          fprintf(stderr, "Semantic Error (line %d): incompatible operands for AND\n", node->linenum);
           SemanticErrors++;
         }
         node->datatype = DATATYPE_BOOL;
@@ -300,7 +301,7 @@ void check_expressions(AST* node)
       case AST_OR:
         if (!compatible_datatypes(node->son[0]->datatype, node->son[1]->datatype))
         {
-          fprintf(stderr, "Semantic Error: incompatible operands for OR\n");
+          fprintf(stderr, "Semantic Error (line %d): incompatible operands for OR\n", node->linenum);
           SemanticErrors++;
         }
         node->datatype = DATATYPE_BOOL;
@@ -311,7 +312,7 @@ void check_expressions(AST* node)
       case AST_FUNC_DEC:
         if (!valid_return_datatype(node))
         {
-          fprintf(stderr, "Semantic Error: function '%s' has an incompatible return datatype\n", node->son[1]->symbol->text);
+          fprintf(stderr, "Semantic Error (line %d): function '%s' has an incompatible return datatype\n", node->linenum, node->son[1]->symbol->text);
           SemanticErrors++;
         }
         break;
@@ -376,7 +377,7 @@ int valid_function_call_args(AST *func_call)
     if (arg_iter != 0 && call_arg_iter != 0)
       if (!compatible_datatypes(arg_iter->son[0]->son[1]->symbol->datatype, call_arg_iter->son[0]->datatype))
       {
-        fprintf(stderr, "Semantic Error: incompatible argument datatype provided on call for '%s' function\n", func_dec->son[1]->symbol->text);
+        fprintf(stderr, "Semantic Error (line %d): incompatible argument datatype provided on call for '%s' function\n", func_call->linenum, func_dec->son[1]->symbol->text);
         return 0;
       }
     if (arg_iter != 0)
@@ -394,12 +395,12 @@ int valid_function_call_args(AST *func_call)
   }
   if (arg_count < call_arg_count)
   {
-    fprintf(stderr, "Semantic Error: too many arguments provided on call for '%s' function (%d expected, %d provided)\n", func_dec->son[1]->symbol->text, arg_count, call_arg_count);
+    fprintf(stderr, "Semantic Error (line %d): too many arguments provided on call for '%s' function (%d expected, %d provided)\n", func_call->linenum, func_dec->son[1]->symbol->text, arg_count, call_arg_count);
     return 0;
   }
   if (arg_count > call_arg_count)
   {
-    fprintf(stderr, "Semantic Error: too few arguments provided on call for '%s' function (%d expected, %d provided)\n", func_dec->son[1]->symbol->text, arg_count, call_arg_count);
+    fprintf(stderr, "Semantic Error (line %d): too few arguments provided on call for '%s' function (%d expected, %d provided)\n", func_call->linenum, func_dec->son[1]->symbol->text, arg_count, call_arg_count);
     return 0;
   }
 

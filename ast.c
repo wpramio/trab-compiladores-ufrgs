@@ -3,6 +3,9 @@
 
 #include "ast.h"
 
+// from scanner.l
+int getLineNumber(void);
+
 AST *global_ast;
 
 AST *astCreate(int type, HASH_NODE *symbol, AST* s0, AST* s1, AST* s2, AST* s3)
@@ -11,6 +14,7 @@ AST *astCreate(int type, HASH_NODE *symbol, AST* s0, AST* s1, AST* s2, AST* s3)
   new_node = (AST*) calloc(1, sizeof(AST));
   new_node->type = type;
   new_node->symbol = symbol;
+  new_node->linenum = getLineNumber();
   new_node->son[0] = s0;
   new_node->son[1] = s1;
   new_node->son[2] = s2;
