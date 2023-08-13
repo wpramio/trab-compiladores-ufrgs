@@ -76,7 +76,7 @@ void check_and_set_declarations(AST *node)
           }
           if (!valid_vector_init_values(node))
           {
-            fprintf(stderr, "Semantic Error (line %d): vector '%s' initialized with invalid datatype\n", node->linenum, node->son[1]->symbol->text);
+            fprintf(stderr, "Semantic Error (line %d): vector '%s' initialized with invalid values\n", node->linenum, node->son[1]->symbol->text);
             SemanticErrors++;
           }
 
@@ -344,13 +344,21 @@ int compatible_datatypes(int dt1, int dt2)
 int valid_vector_init_values(AST *vec_dec)
 {
   AST *vec_tail = vec_dec->son[3];
+  int values_count = 0;
   while(vec_tail != 0)
   {
     if (!compatible_datatypes(vec_tail->son[0]->symbol->datatype, vec_dec->son[0]->datatype))
       return 0;
     else
+    {
+      values_count++;
       vec_tail = vec_tail->son[1];
+    }
   }
+
+  // If there's a init list, it's size must exactly match the size of the vector declaration
+  if (values_count > 0 && values_count != atoi(vec_dec->son[2]->symbol->text))
+    return 0;
 
   return 1;
 }
