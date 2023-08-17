@@ -16,6 +16,7 @@
 #define SYMBOL_VARIABLE   7
 #define SYMBOL_VECTOR     8
 #define SYMBOL_FUNCTION   9
+#define SYMBOL_LABEL      10
 
 #define DATATYPE_INT      1
 #define DATATYPE_REAL     2

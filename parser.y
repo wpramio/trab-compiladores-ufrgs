@@ -4,6 +4,7 @@
   #include "hash.h"
   #include "ast.h"
   #include "semantic.h"
+  #include "tac.h"
 
   extern AST *global_ast;
   int yyerror (char const *s);
@@ -85,6 +86,7 @@ program: global_declaration_list          {
                                           check_expressions(global_ast);
                                           check_assignments(global_ast);
                                           astPrint(global_ast, 0);
+                                          tacPrintBackwards(generateCode(global_ast));
                                           }
        ;
 

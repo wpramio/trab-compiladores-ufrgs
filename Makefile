@@ -16,6 +16,8 @@ ast.o: ast.c
 	gcc -c ast.c
 semantic.o: semantic.c
 	gcc -c semantic.c
+tac.o: tac.c
+	gcc -c tac.c
 y.tab.c: parser.y
 	yacc -d parser.y
 lex.yy.c: scanner.l
