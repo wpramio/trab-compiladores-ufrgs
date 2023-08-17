@@ -1,9 +1,9 @@
 #
-# UFRGS - Compiladores B - Marcelo Johann - 2023/1 - Etapa 3
+# UFRGS - Compiladores B - Marcelo Johann - 2023/1 - Etapa 5
 #
 
-etapa3: main.o lex.yy.o y.tab.o hash.o ast.o semantic.o
-	gcc main.o lex.yy.o y.tab.o hash.o ast.o semantic.o -o etapa4
+etapa5: main.o lex.yy.o y.tab.o hash.o ast.o semantic.o tac.o
+	gcc main.o lex.yy.o y.tab.o hash.o ast.o semantic.o tac.o -o etapa5
 main.o: main.c
 	gcc -c main.c
 lex.yy.o: lex.yy.c
@@ -22,4 +22,4 @@ lex.yy.c: scanner.l
 	lex scanner.l
 
 clean:
-	rm lex.yy.c y.tab.c *.o etapa4
+	rm lex.yy.c y.tab.c *.o etapa5

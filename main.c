@@ -17,7 +17,7 @@ int main(int argc, char **argv)
 {
   if (argc < 3)
   {
-    fprintf(stderr, "Call: ./etapa3 filename_in filename_out\n");
+    fprintf(stderr, "Call: ./etapa5 filename_in filename_out\n");
     exit(1);
   }
 
