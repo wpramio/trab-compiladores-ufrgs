@@ -40,9 +40,9 @@ void tacPrint(TAC* tac)
       case TAC_OR: fprintf(stderr, "TAC_OR"); break;
       case TAC_NEG: fprintf(stderr, "TAC_NEG"); break;
       case TAC_COPY: fprintf(stderr, "TAC_COPY"); break;
-      // case TAC_NESTED_EXPR: fprintf(stderr, "TAC_NESTED_EXPR"); break;
+      case TAC_COPY_VEC: fprintf(stderr, "TAC_COPY_VEC"); break;
       case TAC_FUNC_CALL: fprintf(stderr, "TAC_FUNC_CALL"); break;
-      // case TAC_FUNC_CALL_ARG: fprintf(stderr, "TAC_FUNC_CALL_ARG"); break;
+      case TAC_FUNC_CALL_ARG: fprintf(stderr, "TAC_FUNC_CALL_ARG"); break;
       case TAC_INPUT: fprintf(stderr, "TAC_INPUT"); break;
       case TAC_TYPE_CHAR: fprintf(stderr, "TAC_TYPE_CHAR"); break;
       case TAC_TYPE_INT: fprintf(stderr, "TAC_TYPE_INT"); break;
@@ -51,23 +51,19 @@ void tacPrint(TAC* tac)
       case TAC_VEC_ACCESS: fprintf(stderr, "TAC_VEC_ACCESS"); break;
       case TAC_VAR_DEC: fprintf(stderr, "TAC_VAR_DEC"); break;
       case TAC_VEC_DEC: fprintf(stderr, "TAC_VEC_DEC"); break;
-      // case TAC_VEC_TAIL: fprintf(stderr, "TAC_VEC_TAIL"); break;
+      case TAC_VEC_INIT_VALUE: fprintf(stderr, "TAC_VEC_INIT_VALUE"); break;
       case TAC_BEGIN_FUNC: fprintf(stderr, "TAC_BEGIN_FUNC"); break;
       case TAC_END_FUNC: fprintf(stderr, "TAC_END_FUNC"); break;
-      // case TAC_ARG_LIST: fprintf(stderr, "TAC_ARG_LIST"); break;
-      case TAC_FUNC_CALL_ARG: fprintf(stderr, "TAC_FUNC_CALL_ARG"); break;
-      // case TAC_CMD_BLOCK: fprintf(stderr, "TAC_CMD_BLOCK"); break;
-      // case TAC_CMD_LIST: fprintf(stderr, "TAC_CMD_LIST"); break;
+      case TAC_ARG: fprintf(stderr, "TAC_ARG"); break;
       case TAC_IF: fprintf(stderr, "TAC_IF"); break;
       case TAC_IF_ELSE: fprintf(stderr, "TAC_IF_ELSE"); break;
       case TAC_IF_LOOP: fprintf(stderr, "TAC_IF_LOOP"); break;
       case TAC_JFALSE: fprintf(stderr, "TAC_JFALSE"); break;
+      case TAC_JUMP: fprintf(stderr, "TAC_JUMP"); break;
       case TAC_LABEL: fprintf(stderr, "TAC_LABEL"); break;
       case TAC_OUTPUT: fprintf(stderr, "TAC_OUTPUT"); break;
+      case TAC_OUTPUT_ARG: fprintf(stderr, "TAC_OUTPUT_ARG"); break;
       case TAC_RETURN: fprintf(stderr, "TAC_RETURN"); break;
-      // case TAC_EMPTY_CMD: fprintf(stderr, "TAC_EMPTY_CMD"); break;
-      // case TAC_OUTPUT_ARG: fprintf(stderr, "TAC_OUTPUT_ARG"); break;
-      // case TAC_GLOBAL_DEC_LIST: fprintf(stderr, "TAC_GLOBAL_DEC_LIST"); break;
       default: fprintf(stderr, "TAC_UNKOWN(%d)", tac->opcode); break;
     }
     fprintf(stderr, ",%s", (tac->res) ? tac->res->text : "");
@@ -183,15 +179,16 @@ TAC* makeBinaryOperation(int opcode, TAC* c0, TAC* c1)
 }
 
 // c0: kw_type, c1: symbol, c2: arg_list (or null), c3: cmd_block
+// begin_func
+// c2
+// c3
+// end_func
 TAC* makeFuncDec(TAC* c0, TAC* c1, TAC* c2, TAC* c3)
 {
-  HASH_NODE *label = makeLabel();
-  TAC *tac_begin_func = tacCreate(TAC_BEGIN_FUNC, c1->res, c1 ? c1->res : 0, 0);
-  TAC *tac_end_func = tacCreate(TAC_END_FUNC, label, c1 ? c1->res : 0, 0);
-  TAC *tac_label = tacCreate(TAC_LABEL, label, 0, 0);
-  tac_label->prev = c2;
+  TAC *tac_begin_func = tacCreate(TAC_BEGIN_FUNC, c1->res, 0, 0);
+  TAC *tac_end_func = tacCreate(TAC_END_FUNC, c1->res, 0, 0);
 
-  return tacJoin(tac_begin_func, tac_end_func);
+  return tacJoin(tacJoin(tacJoin(tac_begin_func, c2), c3), tac_end_func);
 }
 
 TAC* generateCode(AST* node)
@@ -218,7 +215,6 @@ TAC* generateCode(AST* node)
         res = tacJoin(code[1], tacCreate(TAC_VEC_ACCESS, node->son[0]->symbol, code[1] ? code[1]->res : 0, 0));
         break;
       case AST_ADD:
-        // res = tacJoin(tacJoin(code[0], code[1]), tacCreate(TAC_ADD, makeTemp(), code[0] ? code[0]->res : 0, code[1] ? code[1]->res : 0));
         res = makeBinaryOperation(TAC_ADD, code[0], code[1]);
         break;
       case AST_SUB:
@@ -257,40 +253,30 @@ TAC* generateCode(AST* node)
       case AST_NEG:
         res = tacCreate(TAC_NEG, makeTemp(), code[0] ? code[0]->res : 0, 0);
         break;
-      // case AST_NESTED_EXPR: fprintf(stderr, "AST_NESTED_EXPR"); break;
       case AST_FUNC_CALL:
         res = tacJoin(code[1], tacCreate(TAC_FUNC_CALL, node->son[0]->symbol, code[1] ? code[1]->res : 0, 0));
         break;
-      // case AST_FUNC_CALL_ARG: fprintf(stderr, "AST_FUNC_CALL_ARG"); break;
+      case AST_FUNC_CALL_ARG:
+        res = tacJoin(tacCreate(TAC_FUNC_CALL_ARG, node->son[0]->symbol, 0, 0), code[1]);
+        break;
       case AST_INPUT:
         res = tacJoin(code[0], tacCreate(TAC_INPUT, makeTemp(), code[0] ? code[0]->res : 0, 0));
         break;
-      case AST_TYPE_CHAR:
-        res = tacCreate(TAC_TYPE_CHAR, 0, 0, 0);
-        break;
-      case AST_TYPE_INT:
-        res = tacCreate(TAC_TYPE_INT, 0, 0, 0);
-        break;
-      case AST_TYPE_REAL:
-        res = tacCreate(TAC_TYPE_REAL, 0, 0, 0);
-        break;
-      case AST_TYPE_BOOL:
-        res = tacCreate(TAC_TYPE_BOOL, 0, 0, 0);
-        break;
       case AST_VAR_DEC:
-        res = tacJoin(tacJoin(code[0], code[2]), tacCreate(TAC_VAR_DEC, node->son[1]->symbol, code[0] ? code[0]->res : 0, code[2] ? code[2]->res : 0));
+        res = tacJoin(code[2], tacCreate(TAC_VAR_DEC, node->son[1]->symbol, code[2] ? code[2]->res : 0, 0));
         break;
       case AST_VEC_DEC:
-        res = tacJoin(tacJoin(tacJoin(code[0], code[2]), code[3]), tacCreate(TAC_VEC_DEC, node->son[1]->symbol, code[0] ? code[0]->res : 0, code[2] ? code[2]->res : 0));
+        res = tacJoin(tacJoin(tacJoin(code[0], code[2]), code[3]), tacCreate(TAC_VEC_DEC, node->son[1]->symbol, code[2] ? code[2]->res : 0, 0));
         break;
-      // case AST_VEC_TAIL: fprintf(stderr, "AST_VEC_TAIL"); break;
-      // case AST_FUNC_DEC: fprintf(stderr, "AST_FUNC_DEC"); break;
-      // case AST_ARG_LIST: fprintf(stderr, "AST_ARG_LIST"); break;
+      case AST_VEC_TAIL:
+        res = tacJoin(tacCreate(TAC_VEC_INIT_VALUE, node->son[0]->symbol, 0, 0), code[1]);
+        break;
+      case AST_FUNC_DEC:
+        res = makeFuncDec(code[0], code[1], code[2], code[3]);
+        break;
       case AST_ARG:
         res = tacJoin(code[0], tacCreate(TAC_ARG, node->son[1]->symbol, code[0] ? code[0]->res : 0, 0));
         break;
-      // case AST_CMD_BLOCK: fprintf(stderr, "AST_CMD_BLOCK"); break;
-      // case AST_CMD_LIST: fprintf(stderr, "AST_CMD_LIST"); break;
       case AST_VAR_ASSIGN:
         res = tacJoin(code[1], tacCreate(TAC_COPY, node->son[0]->symbol, code[1] ? code[1]->res : 0, 0));
         break;
@@ -307,14 +293,14 @@ TAC* generateCode(AST* node)
         res = makeIfLoop(code[0], code[1]);
         break;
       case AST_OUTPUT:
-        res = tacJoin(code[0], tacCreate(TAC_OUTPUT, makeTemp(), code[0] ? code[0]->res : 0, 0));
+        res = tacJoin(tacCreate(TAC_OUTPUT, 0, 0, 0), code[0]);
         break;
-      // case AST_OUTPUT_ARG: fprintf(stderr, "AST_OUTPUT_ARG"); break;
+      case AST_OUTPUT_ARG:
+        res = tacJoin(tacCreate(TAC_OUTPUT_ARG, node->son[0]->symbol, 0, 0), code[1]);
+        break;
       case AST_RETURN:
         res = tacJoin(code[0], tacCreate(TAC_RETURN, makeTemp(), code[0] ? code[0]->res : 0, 0));
         break;
-      // case AST_EMPTY_CMD: fprintf(stderr, "AST_EMPTY_CMD"); break;
-      // case AST_GLOBAL_DEC_LIST: fprintf(stderr, "AST_GLOBAL_DEC_LIST"); break;
       default:
         res = tacJoin(tacJoin(tacJoin(code[0], code[1]), code[2]), code[3]);
         break;
