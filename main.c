@@ -40,7 +40,6 @@ int main(int argc, char **argv)
 
   astDecompile(argv[2]);
 
-  hashPrint();
   fprintf(stderr, "\nFile has %d lines.\n", getLineNumber());
 
   if (SemanticErrors > 0)

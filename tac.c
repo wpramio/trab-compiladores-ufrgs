@@ -82,6 +82,15 @@ void tacPrintBackwards(TAC* tac)
   }
 }
 
+void tacPrintList(TAC* tac)
+{
+  if (tac != 0)
+  {
+    tacPrint(tac);
+    tacPrintList(tac->next);
+  }
+}
+
 // Appends tac1 to the end of 'prev' list of tac2
 TAC* tacJoin(TAC* tac1, TAC* tac2)
 {
@@ -95,6 +104,19 @@ TAC* tacJoin(TAC* tac1, TAC* tac2)
 
   return tac2;
 }
+
+TAC* tacInvert(TAC* tac)
+{
+  TAC* ret = tac;
+  if (tac != 0 && tac->prev != 0)
+  {
+    tac->prev->next = tac;
+    ret = tacInvert(tac->prev);
+  }
+
+  return ret;
+}
+
 
 HASH_NODE* makeTemp()
 {

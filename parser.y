@@ -86,7 +86,10 @@ program: global_declaration_list          {
                                           check_expressions(global_ast);
                                           check_assignments(global_ast);
                                           astPrint(global_ast, 0);
-                                          tacPrintBackwards(generateCode(global_ast));
+                                          hashPrint();
+                                          TAC* tac = generateCode(global_ast);
+                                          tac = tacInvert(tac);
+                                          tacPrintList(tac);
                                           }
        ;
 

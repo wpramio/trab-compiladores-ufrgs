@@ -29,9 +29,11 @@ typedef struct tac_node
 
 TAC *tacCreate(int opcode, HASH_NODE* res, HASH_NODE* op1, HASH_NODE* op2);
 TAC *tacJoin(TAC* tac1, TAC* tac2);
+TAC* tacInvert(TAC* tac);
 TAC *generateCode(AST* node);
 void tacPrint(TAC *tac);
 void tacPrintBackwards(TAC *tac);
+void tacPrintList(TAC* tac);
 HASH_NODE *makeTemp();
 HASH_NODE *makeLabel();
 
