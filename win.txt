@@ -1,0 +1,35 @@
+int a = 0;
+int b = 3;
+real r = 2.5;
+int v[2] 'b' 4;
+
+real foo(real bar, real ber, real bir)
+{
+  r = bar + 2.5;
+  return r * bar;
+}
+
+int main()
+{
+  if (a == 1)
+  {
+    a = a + 1 + v[0];
+  }
+
+  if (a == 2)
+  {
+    a = a + 10;
+  }
+  else
+    output "OK!\n";
+
+  b = 0;
+
+  if (b < 10 & b > 0) loop
+  {
+    b = b + 1;
+  }
+  v[1] = (5 + 5);
+  r = 1.0 + foo(r, r, r);
+}
+

@@ -4,7 +4,7 @@ char c='x';
 char d=100;
 int a.a='A';
 int i=1;
-int v[10] 'a' 0 0 0 0 0 0 0 0 0;
+int v[10] 'b' 0 0 0 0 0 0 0 0 0;
 int matrix[100];
 real f=2.5;
 bool b = 0;
@@ -48,7 +48,7 @@ int main ()
     output "Nao tem como isso...\n";
     }
   else
-    output "OK!\n"; 
+    output "OK!\n";
   {{}} {}
   }
 
