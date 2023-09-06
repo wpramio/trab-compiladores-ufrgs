@@ -173,8 +173,8 @@ TAC* makeIfElse(TAC* c0, TAC* c1, TAC* c2)
 }
 
 // c0: expression, c1: [loop] command
-// c0
 // label_loop
+// c0
 // jf -> label_end
 // c1
 // jump -> label_loop
@@ -187,8 +187,7 @@ TAC* makeIfLoop(TAC* c0, TAC* c1)
   HASH_NODE *label_end = makeLabel();
   TAC *tac_jfalse = tacCreate(TAC_JFALSE, label_end, c0 ? c0->res : 0, 0);
   TAC *tac_label_end = tacCreate(TAC_LABEL, label_end, 0, 0);
-  tac_label_loop->prev = c0;
-  tac_jfalse->prev = tac_label_loop;
+  tac_jfalse->prev = tacJoin(tac_label_loop, c0);
   tac_jump->prev = c1;
   tac_label_end->prev = tac_jump;
 
@@ -234,7 +233,7 @@ TAC* generateCode(AST* node)
         res = tacCreate(TAC_SYMBOL, node->symbol, 0, 0);
         break;
       case AST_VEC_ACCESS:
-        res = tacJoin(code[1], tacCreate(TAC_VEC_ACCESS, node->son[0]->symbol, code[1] ? code[1]->res : 0, 0));
+        res = tacJoin(code[1], tacCreate(TAC_VEC_ACCESS, makeTemp(), code[0] ? code[0]->res : 0, code[1] ? code[1]->res : 0));
         break;
       case AST_ADD:
         res = makeBinaryOperation(TAC_ADD, code[0], code[1]);
