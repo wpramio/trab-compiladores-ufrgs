@@ -208,7 +208,8 @@ void generateAsm(TAC* first)
 
     case TAC_COPY:
       fprintf(fout, "\t; ## TAC_COPY\n");
-      if (tac->op1->type == SYMBOL_VARIABLE || tac->op1->type == SYMBOL_FUNCTION)
+      if (tac->op1->type == SYMBOL_VARIABLE || tac->op1->type == SYMBOL_FUNCTION
+          || tac->prev->opcode == TAC_FUNC_CALL || tac->prev->opcode == TAC_FUNC_CALL_ARG)
         fprintf(fout,
           "\tmovl \t%%eax, %s(%%rip)\n",
           tac->res->text);
