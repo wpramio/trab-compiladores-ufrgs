@@ -224,7 +224,14 @@ void generateAsm(TAC* first)
       break;
 
     case TAC_ADD:
-      if (tac->op1->type == SYMBOL_VARIABLE && tac->op2->type != SYMBOL_VARIABLE)
+      if (tac->op1->type != SYMBOL_VARIABLE && tac->op2->type != SYMBOL_VARIABLE)
+      {
+        fprintf(fout,
+          "\tmovl \t$%s, %%eax\n"
+          "\taddl \t$%s, %%eax\n",
+        tac->op1->text, tac->op2->text);
+      }
+      else if (tac->op1->type == SYMBOL_VARIABLE && tac->op2->type != SYMBOL_VARIABLE)
       {
         fprintf(fout,
           "\tmovl \t%s(%%rip), %%eax\n"
@@ -252,7 +259,14 @@ void generateAsm(TAC* first)
       break;
 
     case TAC_SUB:
-      if (tac->op1->type == SYMBOL_VARIABLE && tac->op2->type != SYMBOL_VARIABLE)
+      if (tac->op1->type != SYMBOL_VARIABLE && tac->op2->type != SYMBOL_VARIABLE)
+      {
+        fprintf(fout,
+          "\tmovl \t$%s, %%eax\n"
+          "\tsubl \t$%s, %%eax\n",
+        tac->op1->text, tac->op2->text);
+      }
+      else if (tac->op1->type == SYMBOL_VARIABLE && tac->op2->type != SYMBOL_VARIABLE)
       {
         // b = a - 987;
         fprintf(fout,
@@ -286,7 +300,14 @@ void generateAsm(TAC* first)
       break;
 
     case TAC_MULT:
-      if (tac->op1->type == SYMBOL_VARIABLE && tac->op2->type != SYMBOL_VARIABLE)
+      if (tac->op1->type != SYMBOL_VARIABLE && tac->op2->type != SYMBOL_VARIABLE)
+      {
+        fprintf(fout,
+          "\tmovl \t$%s, %%eax\n"
+          "\timull \t$%s, %%eax, %%eax\n",
+        tac->op1->text, tac->op2->text);
+      }
+      else if (tac->op1->type == SYMBOL_VARIABLE && tac->op2->type != SYMBOL_VARIABLE)
       {
         // b = a * 987;
         fprintf(fout,
