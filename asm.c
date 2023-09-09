@@ -49,6 +49,7 @@ void globalVariablesSection(TAC* first)
     switch (tac->opcode)
     {
     case TAC_VAR_DEC:
+      fprintf(fout, "\t; ## TAC_VAR_DEC\n");
       fprintf(fout,
         "\t.globl\t%s\n",
         tac->res->text);
@@ -66,6 +67,7 @@ void globalVariablesSection(TAC* first)
       break;
 
     case TAC_VEC_DEC:
+      fprintf(fout, "\t; ## TAC_VEC_DEC\n");
       if (tac->next->opcode == TAC_VEC_INIT_VALUE)
       {
         fprintf(fout,
@@ -105,6 +107,7 @@ void globalVariablesSection(TAC* first)
     case TAC_NEG:
     case TAC_VEC_ACCESS:
     case TAC_INPUT:
+      fprintf(fout, "\t; ## TAC_ARG or makeTemp()\n");
       fprintf(fout,
         "\t.globl\t%s\n",
         tac->res->text);
@@ -153,6 +156,7 @@ void generateAsm(TAC* first)
     switch (tac->opcode)
     {
     case TAC_BEGIN_FUNC:
+      fprintf(fout, "\t; ## TAC_BEGIN_FUNC\n");
       if (func_count == 0)
         fprintf(fout, "\t.text\n");
       fprintf(fout,
@@ -179,6 +183,7 @@ void generateAsm(TAC* first)
       break;
 
     case TAC_RETURN:
+      fprintf(fout, "\t; ## TAC_RETURN\n");
       if (tac->op1->type == SYMBOL_VARIABLE)
         fprintf(fout, "\tmovl \t%s(%%rip), %%eax\n",
           tac->op1->text);
@@ -188,6 +193,7 @@ void generateAsm(TAC* first)
       break;
 
     case TAC_END_FUNC:
+      fprintf(fout, "\t; ## TAC_END_FUNC\n");
       fprintf(fout,
         "\tpopq \t%%rbp\n"
         "\t.cfi_def_cfa 7, 8\n"
@@ -201,6 +207,7 @@ void generateAsm(TAC* first)
       break;
 
     case TAC_COPY:
+      fprintf(fout, "\t; ## TAC_COPY\n");
       if (tac->op1->type == SYMBOL_VARIABLE || tac->op1->type == SYMBOL_FUNCTION)
         fprintf(fout,
           "\tmovl \t%%eax, %s(%%rip)\n",
@@ -212,6 +219,7 @@ void generateAsm(TAC* first)
       break;
 
     case TAC_COPY_VEC:
+      fprintf(fout, "\t; ## TAC_COPY_VEC\n");
       if (tac->op2->type == SYMBOL_VARIABLE)
         fprintf(fout,
           "\tmovl \t%s(%%rip), %%eax\n"
@@ -224,6 +232,7 @@ void generateAsm(TAC* first)
       break;
 
     case TAC_ADD:
+      fprintf(fout, "\t; ## TAC_ADD\n");
       if (tac->op1->type != SYMBOL_VARIABLE && tac->op2->type != SYMBOL_VARIABLE)
       {
         fprintf(fout,
@@ -259,6 +268,7 @@ void generateAsm(TAC* first)
       break;
 
     case TAC_SUB:
+      fprintf(fout, "\t; ## TAC_SUB\n");
       if (tac->op1->type != SYMBOL_VARIABLE && tac->op2->type != SYMBOL_VARIABLE)
       {
         fprintf(fout,
@@ -300,6 +310,7 @@ void generateAsm(TAC* first)
       break;
 
     case TAC_MULT:
+      fprintf(fout, "\t; ## TAC_MULT\n");
       if (tac->op1->type != SYMBOL_VARIABLE && tac->op2->type != SYMBOL_VARIABLE)
       {
         fprintf(fout,
@@ -335,6 +346,7 @@ void generateAsm(TAC* first)
       break;
 
     case TAC_BIGG:
+      fprintf(fout, "\t; ## TAC_BIGG\n");
       if (tac->op1->type == SYMBOL_VARIABLE && tac->op2->type != SYMBOL_VARIABLE)
       {
         fprintf(fout,
@@ -361,6 +373,7 @@ void generateAsm(TAC* first)
       break;
 
     case TAC_LESS:
+      fprintf(fout, "\t; ## TAC_LESS\n");
       if (tac->op1->type == SYMBOL_VARIABLE && tac->op2->type != SYMBOL_VARIABLE)
       {
         fprintf(fout,
@@ -387,6 +400,7 @@ void generateAsm(TAC* first)
       break;
 
     case TAC_LE:
+      fprintf(fout, "\t; ## TAC_LE\n");
       if (tac->op1->type == SYMBOL_VARIABLE && tac->op2->type != SYMBOL_VARIABLE)
       {
         fprintf(fout,
@@ -413,6 +427,7 @@ void generateAsm(TAC* first)
       break;
 
     case TAC_GE:
+      fprintf(fout, "\t; ## TAC_GE\n");
       if (tac->op1->type == SYMBOL_VARIABLE && tac->op2->type != SYMBOL_VARIABLE)
       {
         fprintf(fout,
@@ -439,6 +454,7 @@ void generateAsm(TAC* first)
       break;
 
     case TAC_EQ:
+      fprintf(fout, "\t; ## TAC_EQ\n");
       if (tac->op1->type == SYMBOL_VARIABLE && tac->op2->type != SYMBOL_VARIABLE)
       {
         fprintf(fout,
@@ -465,6 +481,7 @@ void generateAsm(TAC* first)
       break;
 
     case TAC_DIF:
+      fprintf(fout, "\t; ## TAC_DIF\n");
       if (tac->op1->type == SYMBOL_VARIABLE && tac->op2->type != SYMBOL_VARIABLE)
       {
         fprintf(fout,
@@ -491,6 +508,7 @@ void generateAsm(TAC* first)
       break;
 
     case TAC_AND:
+      fprintf(fout, "\t; ## TAC_AND\n");
       if (tac->op1->type == SYMBOL_VARIABLE && tac->op2->type != SYMBOL_VARIABLE)
       {
         fprintf(fout,
@@ -531,6 +549,7 @@ void generateAsm(TAC* first)
       break;
 
     case TAC_OR:
+      fprintf(fout, "\t; ## TAC_OR\n");
       if (tac->op1->type == SYMBOL_VARIABLE && tac->op2->type != SYMBOL_VARIABLE)
       {
         fprintf(fout,
@@ -574,6 +593,7 @@ void generateAsm(TAC* first)
       break;
 
     case TAC_NEG:
+      fprintf(fout, "\t; ## TAC_NEG\n");
       if (tac->op1->type == SYMBOL_VARIABLE)
         fprintf(fout,
           "\tmovl \t%s(%%rip), %%eax\n"
@@ -588,14 +608,17 @@ void generateAsm(TAC* first)
       break;
 
     case TAC_JUMP:
+      fprintf(fout, "\t; ## TAC_JUMP\n");
       fprintf(fout, "\tjmp \t.%s\n", tac->res->text);
       break;
 
     case TAC_LABEL:
+      fprintf(fout, "\t; ## TAC_LABEL\n");
       fprintf(fout, ".%s:\n", tac->res->text);
       break;
 
     case TAC_VEC_ACCESS:
+      fprintf(fout, "\t; ## TAC_VEC_ACCESS\n");
       fprintf(fout,
         "\tmovl \t%d+%s(%%rip), %%eax\n"
         "\tmovl \t%%eax, %s(%%rip)\n",
@@ -604,12 +627,14 @@ void generateAsm(TAC* first)
       break;
 
     case TAC_VAR_ACCESS:
+      fprintf(fout, "\t; ## TAC_VAR_ACCESS\n");
       if (tac->next && tac->next->opcode == TAC_COPY)
         fprintf(fout, "\tmovl \t%s(%%rip), %%eax\n",
           tac->res->text);
       break;
 
     case TAC_INPUT:
+      fprintf(fout, "\t; ## TAC_INPUT\n");
       fprintf(fout,
         "\tleaq \t%s(%%rip), %%rsi\n"
         "\tleaq \t.LC1(%%rip), %%rdi\n"
@@ -620,6 +645,7 @@ void generateAsm(TAC* first)
       break;
 
     case TAC_OUTPUT:
+      fprintf(fout, "\t; ## TAC_OUTPUT\n");
       if (tac->next->opcode == TAC_OUTPUT_ARG)
       {
         TAC* arg = tac->next;
@@ -642,6 +668,7 @@ void generateAsm(TAC* first)
       break;
 
     case TAC_FUNC_CALL:
+      fprintf(fout, "\t; ## TAC_FUNC_CALL\n");
       i = 0;
       for(TAC* t = tac->next; t->opcode == TAC_FUNC_CALL_ARG; t = t->next)
         i++;
