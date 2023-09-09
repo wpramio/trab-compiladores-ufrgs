@@ -5,6 +5,7 @@
   #include "ast.h"
   #include "semantic.h"
   #include "tac.h"
+  #include "asm.h"
 
   extern AST *global_ast;
   int yyerror (char const *s);
@@ -86,10 +87,11 @@ program: global_declaration_list          {
                                           check_expressions(global_ast);
                                           check_assignments(global_ast);
                                           astPrint(global_ast, 0);
-                                          hashPrint();
                                           TAC* tac = generateCode(global_ast);
+                                          hashPrint();
                                           tac = tacInvert(tac);
                                           tacPrintList(tac);
+                                          generateAsm(tac);
                                           }
        ;
 
