@@ -49,6 +49,7 @@ void tacPrint(TAC* tac)
       case TAC_TYPE_REAL: fprintf(stderr, "TAC_TYPE_REAL"); break;
       case TAC_TYPE_BOOL: fprintf(stderr, "TAC_TYPE_BOOL"); break;
       case TAC_VEC_ACCESS: fprintf(stderr, "TAC_VEC_ACCESS"); break;
+      case TAC_VAR_ACCESS: fprintf(stderr, "TAC_VAR_ACCESS"); break;
       case TAC_VAR_DEC: fprintf(stderr, "TAC_VAR_DEC"); break;
       case TAC_VEC_DEC: fprintf(stderr, "TAC_VEC_DEC"); break;
       case TAC_VEC_INIT_VALUE: fprintf(stderr, "TAC_VEC_INIT_VALUE"); break;
@@ -137,11 +138,16 @@ HASH_NODE* makeLabel()
 }
 
 // c0: expression, c1: [then] command
+// tac_if
+// c0
+// jf -> label
+// c1
+// label
 TAC* makeIf(TAC* c0, TAC* c1)
 {
   HASH_NODE *label = makeLabel();
   TAC *tac_jfalse = tacCreate(TAC_JFALSE, label, c0 ? c0->res : 0, 0);
-  tac_jfalse->prev = c0;
+  tac_jfalse->prev = tacJoin(tacCreate(TAC_IF, 0, 0, 0), c0);
   TAC *tac_label = tacCreate(TAC_LABEL, label, 0, 0);
   tac_label->prev = c1;
 
@@ -164,7 +170,7 @@ TAC* makeIfElse(TAC* c0, TAC* c1, TAC* c2)
   HASH_NODE *label_end = makeLabel();
   TAC *tac_jump = tacCreate(TAC_JUMP, label_end, 0, 0);
   TAC *tac_label_end = tacCreate(TAC_LABEL, label_end, 0, 0);
-  tac_jfalse->prev = c0;
+  tac_jfalse->prev = tacJoin(tacCreate(TAC_IF_ELSE, 0, 0, 0), c0);
   tac_jump->prev = c1;
   tac_label_else->prev = tac_jump;
   tac_label_end->prev = c2;
@@ -187,6 +193,7 @@ TAC* makeIfLoop(TAC* c0, TAC* c1)
   HASH_NODE *label_end = makeLabel();
   TAC *tac_jfalse = tacCreate(TAC_JFALSE, label_end, c0 ? c0->res : 0, 0);
   TAC *tac_label_end = tacCreate(TAC_LABEL, label_end, 0, 0);
+  tac_label_loop->prev = tacCreate(TAC_IF_LOOP, 0, 0, 0);
   tac_jfalse->prev = tacJoin(tac_label_loop, c0);
   tac_jump->prev = c1;
   tac_label_end->prev = tac_jump;
@@ -229,8 +236,10 @@ TAC* generateCode(AST* node)
       case AST_SYMBOL:
       case AST_SYMBOL_CHAR:
       case AST_SYMBOL_STRING:
-      case AST_VAR_ACCESS:
         res = tacCreate(TAC_SYMBOL, node->symbol, 0, 0);
+        break;
+      case AST_VAR_ACCESS:
+        res = tacCreate(TAC_VAR_ACCESS, node->symbol, 0, 0);
         break;
       case AST_VEC_ACCESS:
         res = tacJoin(code[1], tacCreate(TAC_VEC_ACCESS, makeTemp(), code[0] ? code[0]->res : 0, code[1] ? code[1]->res : 0));
@@ -275,7 +284,7 @@ TAC* generateCode(AST* node)
         res = tacCreate(TAC_NEG, makeTemp(), code[0] ? code[0]->res : 0, 0);
         break;
       case AST_FUNC_CALL:
-        res = tacJoin(code[1], tacCreate(TAC_FUNC_CALL, node->son[0]->symbol, code[1] ? code[1]->res : 0, 0));
+        res = tacJoin(tacCreate(TAC_FUNC_CALL, node->son[0]->symbol, code[1] ? code[1]->res : 0, 0), code[1]);
         break;
       case AST_FUNC_CALL_ARG:
         res = tacJoin(tacCreate(TAC_FUNC_CALL_ARG, node->son[0]->symbol, 0, 0), code[1]);
@@ -287,7 +296,7 @@ TAC* generateCode(AST* node)
         res = tacJoin(code[2], tacCreate(TAC_VAR_DEC, node->son[1]->symbol, code[2] ? code[2]->res : 0, 0));
         break;
       case AST_VEC_DEC:
-        res = tacJoin(tacJoin(tacJoin(code[0], code[2]), code[3]), tacCreate(TAC_VEC_DEC, node->son[1]->symbol, code[2] ? code[2]->res : 0, 0));
+        res = tacJoin(tacCreate(TAC_VEC_DEC, node->son[1]->symbol, code[2] ? code[2]->res : 0, 0), code[3]);
         break;
       case AST_VEC_TAIL:
         res = tacJoin(tacCreate(TAC_VEC_INIT_VALUE, node->son[0]->symbol, 0, 0), code[1]);
@@ -317,10 +326,10 @@ TAC* generateCode(AST* node)
         res = tacJoin(tacCreate(TAC_OUTPUT, 0, 0, 0), code[0]);
         break;
       case AST_OUTPUT_ARG:
-        res = tacJoin(tacCreate(TAC_OUTPUT_ARG, node->son[0]->symbol, 0, 0), code[1]);
+        res = tacJoin(tacCreate(TAC_OUTPUT_ARG, node->son[0]->symbol ? node->son[0]->symbol : node->son[0]->son[0]->symbol, node->son[0]->son[1] ? node->son[0]->son[1]->symbol : 0, 0), code[1]);
         break;
       case AST_RETURN:
-        res = tacJoin(code[0], tacCreate(TAC_RETURN, makeTemp(), code[0] ? code[0]->res : 0, 0));
+        res = tacJoin(code[0], tacCreate(TAC_RETURN, 0, code[0] ? code[0]->res : 0, 0));
         break;
       default:
         res = tacJoin(tacJoin(tacJoin(code[0], code[1]), code[2]), code[3]);
