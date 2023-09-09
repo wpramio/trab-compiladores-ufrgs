@@ -39,7 +39,7 @@ void globalVariablesSection(TAC* first)
   fout = fopen("out.s", "w");
 
   fprintf(fout,
-    "\t.file \t\"input.c\"\n"
+    "\t.file \t\"input.txt\"\n"
     "\t.text\n");
 
   int var_c = 0;
@@ -62,23 +62,6 @@ void globalVariablesSection(TAC* first)
         "\t.long \t%s\n",
         tac->res->text, tac->res->text,
         tac->res->text, tac->op1 ? tac->op1->text : "0");
-      var_c++;
-      break;
-
-    case TAC_ARG:
-      fprintf(fout,
-        "\t.globl\t%s\n",
-        tac->res->text);
-      if (var_c == 0)
-        fprintf(fout, "\t.data\n");
-      fprintf(fout,
-        "\t.align 4\n"
-        "\t.type %s, @object\n"
-        "\t.size %s, 4\n"
-        "%s:\n"
-        "\t.long \t0\n",
-      tac->res->text, tac->res->text,
-      tac->res->text);
       var_c++;
       break;
 
@@ -107,6 +90,7 @@ void globalVariablesSection(TAC* first)
       var_c++;
       break;
 
+    case TAC_ARG:
     case TAC_ADD:
     case TAC_SUB:
     case TAC_MULT:
@@ -144,14 +128,6 @@ void globalVariablesSection(TAC* first)
 
   fclose(fout);
 }
-
-void printLabel(int label_count)
-{
-  FILE *fout;
-  fout = fopen("out.s", "a");
-  fprintf(fout, ".L%d:\n", label_count);
-}
-
 
 void generateAsm(TAC* first)
 {
