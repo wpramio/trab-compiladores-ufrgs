@@ -25,7 +25,7 @@ void stringSection(TAC* first)
     {
       fprintf(fout,
       ".LC%d:\n"
-      "\t.string \t\"%s\\n\"\n",
+      "\t.string \t\"%s\"\n",
       i++, tac->res->text);
     }
   }
@@ -201,7 +201,7 @@ void generateAsm(TAC* first)
       break;
 
     case TAC_COPY:
-      if (tac->op1->type == SYMBOL_VARIABLE)
+      if (tac->op1->type == SYMBOL_VARIABLE || tac->op1->type == SYMBOL_FUNCTION)
         fprintf(fout,
           "\tmovl \t%%eax, %s(%%rip)\n",
           tac->res->text);
@@ -662,7 +662,8 @@ void generateAsm(TAC* first)
           tac->next->next->res->text,
           tac->next->next->next->res->text);
       }
-      fprintf(fout, "\tmovl \t%%%s, %%esi\n", regs[i-1]);
+      if (i > 0)
+        fprintf(fout, "\tmovl \t%%%s, %%esi\n", regs[i-1]);
       fprintf(fout,
         "\tmovl \t%%eax, %%edi\n"
         "\tcall \t%s\n",
