@@ -599,24 +599,25 @@ void generateAsm(TAC* first)
       break;
 
     case TAC_OUTPUT:
+      if (tac->next->opcode == TAC_OUTPUT_ARG)
+      {
+        TAC* arg = tac->next;
+        if (arg->res->type == SYMBOL_VECTOR)
+          fprintf(fout, "\tmovl \t%d+%s(%%rip), %%eax\n",
+          4*atoi(arg->op1->text), arg->res->text);
+        else if (arg->res->type == SYMBOL_VARIABLE)
+          fprintf(fout, "\tmovl \t%s(%%rip), %%eax\n",
+            arg->res->text);
+        else if (arg->res->type == SYMBOL_LIT_INT || arg->res->type == SYMBOL_LIT_CHAR)
+          fprintf(fout, "\tmovl \t$%s, %%eax\n",
+            arg->res->text);
+      }
       fprintf(fout,
         "\tmovl \t%%eax, %%esi\n"
         "\tleaq \t.LC%d(%%rip), %%rdi\n"
         "\tmovl \t$0, %%eax\n"
         "\tcall \tprintf@PLT\n",
         tac->next->res->type == SYMBOL_LIT_STRING ? string_label_count++ : 0);
-      break;
-
-    case TAC_OUTPUT_ARG:
-      if (tac->res->type == SYMBOL_VECTOR)
-        fprintf(fout, "\tmovl \t%d+%s(%%rip), %%eax\n",
-        4*atoi(tac->op1->text), tac->res->text);
-      else if (tac->res->type == SYMBOL_VARIABLE)
-        fprintf(fout, "\tmovl \t%s(%%rip), %%eax\n",
-          tac->res->text);
-      else if (tac->res->type == SYMBOL_LIT_INT || tac->res->type == SYMBOL_LIT_CHAR)
-        fprintf(fout, "\tmovl \t$%s, %%eax\n",
-          tac->res->text);
       break;
 
     case TAC_FUNC_CALL:
