@@ -59,3 +59,5 @@ lex.yy.c
 etapa*
 y.tab.c
 y.tab.h
+out.s
+out.txt

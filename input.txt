@@ -1,16 +1,77 @@
-identif
-10
-2.0
-'w'
-"abc"
+int a = 110;
+int b = 220;
+int c = 330;
+int v[2] 60 70;
+int arr[5];
+int acumula = 0;
 
-.   _
-char
-if
-\\ one line comment 1
-\\\ multi line comment 2
-3
-///
-<=
-+
-'
+int soma(int op_a, int op_b)
+{ return op_a + op_b; }
+
+int print_hello_world()
+{
+  output "hello world!\n";
+  return 0;
+}
+
+int main()
+{
+	output "Testando declaracoes de variavel e vetor:\n";
+	output "a = ";
+	output a;
+	output "b = ";
+  output b;
+	output "c = ";
+  output c;
+	output "v[0] = ";
+  output v[0];
+	output "v[1] = ";
+  output v[1];
+  output "print de literal -> ";
+  output 88;
+	
+  output "\nTestando operacoes:\n";
+  a = 2 + 2 + 10;
+  output "2+2 = ";
+  output a;
+  a = 7 - 1; 
+  output "7-1 = ";
+  output a;
+  a = 3 * 6;
+  output "3*6 = ";
+  output a;
+  a = v[0] + v[1];
+  output "v[0] + v[1] = ";
+  output a;
+
+  output "\nTestando input:\n";
+  output "Digite um numero menor que 100: \n";
+  acumula = input(int);
+  
+  output "\nTestando controle de fluxo e operacoes logicas:\n";
+  if (acumula < 100) loop
+  {
+    acumula = acumula + 20;
+
+    if (acumula >= 80)
+    	output "Chegou a 80, ta quase!\n";
+    else
+    	output "Acumulando!\n";
+    output "acumula = ";
+    output acumula;
+
+  }
+
+  output "\nTestando chamada de funcao com parametro:\n";
+  \\ deve retornar 55
+  a = soma(b, c);
+  output "soma(b, c) -> ";
+  output a;
+  
+  output "\nTestando chamada de funcao sem parametro:\n";
+  output "print_hello_world() -> ";
+  a = print_hello_world();
+  
+  return 0;
+}
+

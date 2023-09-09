@@ -326,7 +326,7 @@ TAC* generateCode(AST* node)
         res = tacJoin(tacCreate(TAC_OUTPUT, 0, 0, 0), code[0]);
         break;
       case AST_OUTPUT_ARG:
-        res = tacJoin(tacCreate(TAC_OUTPUT_ARG, node->son[0]->symbol ? node->son[0]->symbol : node->son[0]->son[0]->symbol, node->son[0]->son[1] ? node->son[0]->son[1]->symbol : 0, 0), code[1]);
+        res = tacJoin(tacCreate(TAC_OUTPUT_ARG, node->son[0]->symbol ? node->son[0]->symbol : node->son[0]->son[0]->symbol, node->son[0]->son[1] ? node->son[0]->son[1]->symbol : 0, 0), tacJoin(code[0], code[1]));
         break;
       case AST_RETURN:
         res = tacJoin(code[0], tacCreate(TAC_RETURN, 0, code[0] ? code[0]->res : 0, 0));

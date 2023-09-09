@@ -132,6 +132,16 @@ void globalVariablesSection(TAC* first)
   fclose(fout);
 }
 
+void movl_reg(FILE* fout, HASH_NODE* op, char* reg)
+{
+  if (op->type == SYMBOL_VARIABLE)
+    fprintf(fout, "\tmovl \t%s(%%rip), %%%s\n",
+      op->text, reg);
+  else
+    fprintf(fout, "\tmovl \t$%s, %%%s\n",
+      op->text, reg);
+}
+
 void generateAsm(TAC* first)
 {
   globalVariablesSection(first);
@@ -678,9 +688,10 @@ void generateAsm(TAC* first)
           tac->next->res->text);
       if (i == 2)
       {
-        fprintf(fout,
-          "\tmovl \t%s(%%rip), %%edx\n",
-          tac->next->next->res->text);
+        movl_reg(fout, tac->next->next->res, "edx");
+        // fprintf(fout,
+        //   "\tmovl \t%s(%%rip), %%edx\n",
+        //   tac->next->next->res->text);
       }
       if (i == 3)
       {
